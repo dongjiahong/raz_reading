@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZenRead PDF</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/react-pdf@10.2.0/dist/Page/AnnotationLayer.css" />
+    <link rel="stylesheet" href="https://unpkg.com/react-pdf@10.2.0/dist/Page/TextLayer.css" />
+    <style>
+      body { font-family: 'Inter', sans-serif; }
+      /* Hide scrollbar for Chrome, Safari and Opera */
+      .no-scrollbar::-webkit-scrollbar {
+          display: none;
+      }
+      /* Hide scrollbar for IE, Edge and Firefox */
+      .no-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+      }
+      /* PDF page shadow */
+      .react-pdf__Page {
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        margin-bottom: 2rem;
+      }
+      .react-pdf__Page__canvas {
+        margin: 0 auto;
+        border-radius: 4px;
+      }
+      /* Fix for TextLayer overlay alignment */
+      .react-pdf__Page__textContent {
+        top: 0 !important;
+        left: 0 !important;
+        transform: none !important;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "html2canvas": "https://aistudiocdn.com/html2canvas@^1.4.1",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "clsx": "https://aistudiocdn.com/clsx@^2.1.1",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "tailwind-merge": "https://aistudiocdn.com/tailwind-merge@^3.4.0",
+    "idb": "https://aistudiocdn.com/idb@^8.0.3",
+    "react-pdf/": "https://aistudiocdn.com/react-pdf@^10.2.0/",
+    "react-pdf": "https://aistudiocdn.com/react-pdf@^10.2.0"
+  }
+}
+</script>
+</head>
+  <body class="bg-gray-50 text-slate-900 h-screen overflow-hidden">
+    <div id="root" class="h-full"></div>
+  </body>
+</html>
