@@ -14,17 +14,3 @@ export interface ReadingHistory {
   lastReadAt: number;
   totalPages?: number;
 }
-
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'model';
-  text: string;
-  isLoading?: boolean;
-  timestamp: number;
-}
-
-export interface AIAnalysisRequest {
-  text?: string;
-  imageBase64?: string;
-  prompt: string;
-}

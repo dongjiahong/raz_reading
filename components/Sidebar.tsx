@@ -1,5 +1,5 @@
 import React, { useRef, useState, useMemo } from 'react';
-import { Plus, FileText, Trash2, Library, BookOpen, Folder, FolderOpen, ChevronRight, ChevronDown, Upload } from 'lucide-react';
+import { Plus, FileText, Trash2, Library, BookOpen, Folder, FolderOpen, ChevronRight, ChevronDown, Upload, X } from 'lucide-react';
 import { StoredFile, ReadingHistory } from '../types';
 import { Button } from './Button';
 import clsx from 'clsx';
@@ -14,6 +14,7 @@ interface SidebarProps {
   onImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onFolderImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
   isOpen: boolean;
+  onClose: () => void;
 }
 
 // Tree Node Structure
@@ -48,7 +49,7 @@ const FileTreeItem: React.FC<{
     return (
       <div>
         <div 
-          className="group flex items-center justify-between py-1.5 pr-2 hover:bg-slate-50 cursor-pointer rounded-md text-slate-600 transition-colors select-none"
+          className="group flex items-center justify-between py-2 pr-2 hover:bg-slate-50 cursor-pointer rounded-md text-slate-600 transition-colors select-none"
           style={{ paddingLeft: `${paddingLeft}px` }}
           onClick={() => toggleFolder(node.path)}
         >
@@ -67,7 +68,7 @@ const FileTreeItem: React.FC<{
               e.stopPropagation();
               onFolderDelete(node.path);
             }}
-            className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-all shrink-0"
+            className="md:opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-all shrink-0"
             title="Delete folder"
           >
             <Trash2 className="w-3 h-3" />
@@ -98,7 +99,7 @@ const FileTreeItem: React.FC<{
   return (
     <div 
       className={clsx(
-        "group relative flex flex-col py-2 rounded-lg cursor-pointer transition-all my-0.5",
+        "group relative flex flex-col py-2.5 md:py-2 rounded-lg cursor-pointer transition-all my-0.5",
         isActive ? "bg-indigo-50 text-indigo-900" : "hover:bg-slate-50 text-slate-700"
       )}
       style={{ paddingLeft: `${paddingLeft}px`, paddingRight: '8px' }}
@@ -112,7 +113,6 @@ const FileTreeItem: React.FC<{
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium truncate">{node.name}</p>
           <div className="flex items-center gap-2 mt-0.5">
-             {/* Only show size for files at root or shallow depth to save space, or if active */}
             {node.size && (
               <span className="text-[10px] text-slate-400">
                 {(node.size / 1024 / 1024).toFixed(2)} MB
@@ -130,7 +130,7 @@ const FileTreeItem: React.FC<{
             e.stopPropagation();
             node.fileId && onFileDelete(node.fileId);
           }}
-          className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-all"
+          className="md:opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-all"
           title="Delete file"
         >
           <Trash2 className="w-3 h-3" />
@@ -149,7 +149,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onFolderDelete,
   onImport,
   onFolderImport,
-  isOpen
+  isOpen,
+  onClose
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
@@ -226,85 +227,102 @@ export const Sidebar: React.FC<SidebarProps> = ({
     return Math.round((h.lastPage / h.totalPages) * 100);
   };
 
-  if (!isOpen) return null;
-
   return (
-    <aside className="w-72 bg-white border-r border-slate-200 h-full flex flex-col shrink-0 transition-all duration-300 ease-in-out">
-      <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-slate-800 font-semibold">
-          <BookOpen className="w-5 h-5 text-indigo-600" />
-          <span>ZenRead</span>
-        </div>
-      </div>
-
-      <div className="p-3 grid grid-cols-2 gap-2 border-b border-slate-50">
-        <input
-          type="file"
-          ref={fileInputRef}
-          className="hidden"
-          accept="application/pdf"
-          multiple
-          onChange={onImport}
-        />
-        <input
-          type="file"
-          ref={folderInputRef}
-          className="hidden"
-          {...{ webkitdirectory: "", directory: "" } as any}
-          multiple
-          onChange={onFolderImport}
-        />
-        
-        <Button 
-          variant="secondary"
-          size="sm"
-          className="gap-2 text-xs" 
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <Plus className="w-3.5 h-3.5" /> File
-        </Button>
-        
-        <Button 
-          variant="secondary"
-          size="sm"
-          className="gap-2 text-xs" 
-          onClick={() => folderInputRef.current?.click()}
-        >
-          <Upload className="w-3.5 h-3.5" /> Folder
-        </Button>
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-2 py-2 no-scrollbar">
-        {files.length === 0 ? (
-          <div className="text-center py-8 text-slate-400 text-sm">
-            <Library className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p>No files yet</p>
-          </div>
-        ) : (
-          <div className="space-y-0.5">
-            {treeData.map(node => (
-              <FileTreeItem 
-                key={node.path}
-                node={node}
-                depth={0}
-                activeFileId={activeFileId}
-                expandedFolders={expandedFolders}
-                toggleFolder={toggleFolder}
-                onFileSelect={onFileSelect}
-                onFileDelete={onFileDelete}
-                onFolderDelete={onFolderDelete}
-                getReadPercentage={getReadPercentage}
-              />
-            ))}
-          </div>
+    <>
+      {/* Mobile Overlay */}
+      <div 
+        className={clsx(
+          "fixed inset-0 bg-slate-900/50 z-30 transition-opacity md:hidden",
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
-      </div>
+        onClick={onClose}
+      />
+      
+      <aside 
+        className={clsx(
+          "fixed inset-y-0 left-0 z-40 w-72 bg-white border-r border-slate-200 h-full flex flex-col shadow-xl transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:shadow-none",
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-slate-800 font-semibold">
+            <BookOpen className="w-5 h-5 text-indigo-600" />
+            <span>ZenRead</span>
+          </div>
+          <button onClick={onClose} className="md:hidden text-slate-400">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-      <div className="p-3 border-t border-slate-100 bg-slate-50/50">
-         <div className="text-[10px] text-slate-400 text-center">
-           <p>Local storage only. {files.length} files.</p>
-         </div>
-      </div>
-    </aside>
+        <div className="p-3 grid grid-cols-2 gap-2 border-b border-slate-50">
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept="application/pdf"
+            multiple
+            onChange={onImport}
+          />
+          <input
+            type="file"
+            ref={folderInputRef}
+            className="hidden"
+            {...{ webkitdirectory: "", directory: "" } as any}
+            multiple
+            onChange={onFolderImport}
+          />
+          
+          <Button 
+            variant="secondary"
+            size="sm"
+            className="gap-2 text-xs" 
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Plus className="w-3.5 h-3.5" /> File
+          </Button>
+          
+          <Button 
+            variant="secondary"
+            size="sm"
+            className="gap-2 text-xs" 
+            onClick={() => folderInputRef.current?.click()}
+          >
+            <Upload className="w-3.5 h-3.5" /> Folder
+          </Button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-2 py-2 no-scrollbar">
+          {files.length === 0 ? (
+            <div className="text-center py-8 text-slate-400 text-sm">
+              <Library className="w-8 h-8 mx-auto mb-2 opacity-50" />
+              <p>No files yet</p>
+            </div>
+          ) : (
+            <div className="space-y-0.5">
+              {treeData.map(node => (
+                <FileTreeItem 
+                  key={node.path}
+                  node={node}
+                  depth={0}
+                  activeFileId={activeFileId}
+                  expandedFolders={expandedFolders}
+                  toggleFolder={toggleFolder}
+                  onFileSelect={onFileSelect}
+                  onFileDelete={onFileDelete}
+                  onFolderDelete={onFolderDelete}
+                  getReadPercentage={getReadPercentage}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="p-3 border-t border-slate-100 bg-slate-50/50">
+           <div className="text-[10px] text-slate-400 text-center">
+             <p>Local storage only. {files.length} files.</p>
+           </div>
+        </div>
+      </aside>
+    </>
   );
 };
